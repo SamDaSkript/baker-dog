@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- ****** faviconit.com favicons ****** -->
+    <link rel="shortcut icon" href="fav/favicon.ico">
+    <link rel="icon" sizes="16x16 32x32 64x64" href="fav/favicon.ico">
+    <link rel="icon" type="image/png" sizes="196x196" href="fav/favicon-192.png">
+    <link rel="icon" type="image/png" sizes="160x160" href="fav/favicon-160.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="fav/favicon-96.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="fav/favicon-64.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="fav/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="fav/favicon-16.png">
+    <link rel="apple-touch-icon" href="fav/favicon-57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="fav/favicon-114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="fav/favicon-72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="fav/favicon-144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="fav/favicon-60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="fav/favicon-120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="fav/favicon-76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="fav/favicon-152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="fav/favicon-180.png">
+    <meta name="msapplication-TileColor" content="#FFFFFF">
+    <meta name="msapplication-TileImage" content="fav/favicon-144.png">
+    <meta name="msapplication-config" content="fav/browserconfig.xml">
+    <!-- ****** faviconit.com favicons ****** -->
+
+    <title>Baker Cat</title>
+    <meta name="description" content="What is he baking?">
+    <meta property="og:title" content="Baker Dog">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://baker.cat/bakerdog.gif">
+    <meta property="og:url" content="https://baker.dog">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:url" content="https://baker.dog">
+    <meta name="twitter:title" content="Baker Dog">
+    <meta name="twitter:description" content="What is he baking?">
+    <meta name="twitter:image" content="https://baker.dog/bakerdog.gif">
+    <meta name="twitter:image:alt" content="A dog patting some dough">
+    <meta name="twitter:creator" content="prpl_z">
+    <link href="https://baker.dog/" rel="canonical">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+        body {
+            background-color: #FEF2E6;
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        a {
+            color: #337ab7;
+            text-decoration: none;
+        }
+
+        a:hover, a:focus {
+            color: #23527c;
+            text-decoration: underline;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 5px;
+            width: 99%;
+        }
+    </style>
+    <script>
+        var secondsPlayed = parseInt(window.localStorage.secondsPlayed);
+        if (isNaN(secondsPlayed)) {
+            secondsPlayed = 0;
+        }
+
+        function onload() {
+            document.getElementById('timer').innerHTML = durationStr(secondsPlayed);
+            var last = Date.now();
+            window.setInterval(function () {
+                var now = Date.now();
+                secondsPlayed += (now - last) / 1000;
+                last = now;
+                document.getElementById('timer').innerHTML = durationStr(secondsPlayed);
+                window.localStorage.secondsPlayed = secondsPlayed;
+            }, 100);
+        }
+
+        window.addEventListener('load', onload, false);
+
+        function durationStr(seconds) {
+            var n = Math.floor(seconds);
+            var str = n % 60 + 's';
+            n = Math.floor(n / 60);
+            if (n === 0) return str;
+            str = n % 60 + 'm ' + str;
+            n = Math.floor(n / 60);
+            if (n === 0) return str;
+            str = n % 24 + 'h ' + str;
+            n = Math.floor(n / 24);
+            if (n === 0) return str;
+            return n + 'd ' + str;
+        }
+
+        var loop = null;
+        var slow = false;
+
+        var AudioContext = window.AudioContext || window.webkitAudioContext || false;
+        if (AudioContext) {
+            var ctx = new AudioContext();
+            var gain = ctx.createGain();
+            gain.connect(ctx.destination);
+            gain.gain.value = 0.3;
+            var req1 = new XMLHttpRequest();
+            req1.open('GET', 'start.mp3', true);
+            req1.responseType = 'arraybuffer';
+            req1.onload = function () {
+                ctx.decodeAudioData(req1.response, function (b) {
+                    var src = ctx.createBufferSource();
+                    src.buffer = b;
+                    src.connect(gain);
+                    src.start(0);
+                    src.onended = function () {
+                        if (loop === null) {
+                            slow = true;
+                        } else {
+                            loop.start(0);
+                        }
+                    };
+                });
+            };
+            req1.send();
+
+            var req2 = new XMLHttpRequest();
+            req2.open('GET', 'loop.mp3', true);
+            req2.responseType = 'arraybuffer';
+            req2.onload = function () {
+                ctx.decodeAudioData(req2.response, function (b) {
+                    var src = ctx.createBufferSource();
+                    src.buffer = b;
+                    src.connect(gain);
+                    src.loop = true;
+                    loop = src;
+                    if (slow) {
+                        src.start(0);
+                    }
+                });
+            };
+            req2.send();
+        } else {
+            window.location.href = "https://youtu.be/-ZOiX6cIT8o";
+        }
+    </script>
+</head>
+<body>
+<img src="bakerdog.gif">
+<h3>
+    You have been baking with a Dog for:
+    <br/>
+    <span id="timer">0s</span>
+</h3>
+Image: <a href="http://www.pusheen.com/">Pusheen</a>
+<br/>
+Music: <a href="https://itunes.apple.com/us/album/buckycubes-swing-baker-cat/id578276619">Buckycubes "Swing"</a> by
+<a href="http://www.drewskinnersound.com/">Drew Skinner</a>
+<footer>
+    Made by <a href="https://prplz.io">prplz</a> | <a href="https://github.com/prplz/baker.cat">GitHub</a>
+</footer>
+</body>
+</html>
